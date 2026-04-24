@@ -552,7 +552,7 @@ export async function generateAppraisalDoc(data: AppraisalData) {
                       new Paragraph({
                         alignment: AlignmentType.RIGHT,
                         spacing:   { ...bodySpacing },
-                        children: [new TextRun({ text: "Score", bold: true, color: COLORS.WHITE, size: TYPO.body })],
+                          children: [new TextRun({ text: "Score", bold: true, color: COLORS.TEXT_MAIN, size: TYPO.body })],
                       }),
                     ],
                     verticalAlign: VerticalAlign.CENTER,
