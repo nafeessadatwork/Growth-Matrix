@@ -30,7 +30,7 @@ const DEFAULT_DATA: AppraisalData = {
   reviewer: {
     name: "",
     position: "",
-    department: "Management",
+    department: "",
     projectsManaged: "",
     appraisalDue: "",
   },
