@@ -20,6 +20,7 @@ export default defineConfig(({mode}) => {
             if (id.includes('node_modules/motion')) return 'vendor-motion';
             if (id.includes('node_modules/lucide-react')) return 'vendor-icons';
             if (id.includes('node_modules/docx')) return 'vendor-docx';
+            if (id.includes('node_modules/docx-preview') || id.includes('node_modules/jszip')) return 'vendor-docx-preview';
           },
         },
       },

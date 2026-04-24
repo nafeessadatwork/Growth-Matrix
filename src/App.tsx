@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, useLayoutEffect, useId, type Attributes, type ReactNode } from "react";
-import { Download, RefreshCcw, Sun, Moon, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
+import { useState, useEffect, useLayoutEffect, useId, useCallback, useRef, type Attributes, type ReactNode } from "react";
+import { Download, RefreshCcw, Sun, Moon, ChevronLeft, ChevronRight, Calendar, Eye, Printer, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { saveAs } from "file-saver";
+import { renderAsync } from "docx-preview";
 
 import {
   AppraisalData,
@@ -51,6 +52,11 @@ type Theme = "dark" | "light";
 
 const TABS = ["info", "factors", "goals", "summary"] as const;
 
+const DOCX_PREVIEW_OPTS = {
+  inWrapper: true,
+  hideWrapperOnPrint: true,
+} as const;
+
 export default function App() {
   const [data, setData] = useState<AppraisalData>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -73,6 +79,12 @@ export default function App() {
 
   const [factorSlideIndex, setFactorSlideIndex] = useState(0);
   const [factorSlideDir, setFactorSlideDir] = useState(1);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const previewTitleId = useId();
+  const modalDocxRef = useRef<HTMLDivElement>(null);
+  const printSinkRef = useRef<HTMLDivElement>(null);
+  const [previewDocLoading, setPreviewDocLoading] = useState(false);
+  const [previewDocError, setPreviewDocError] = useState<string | null>(null);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -92,7 +104,76 @@ export default function App() {
     localStorage.setItem(THEME_KEY, theme);
   }, [theme]);
 
+  useEffect(() => {
+    if (!previewOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setPreviewOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [previewOpen]);
+
+  useEffect(() => {
+    if (previewOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [previewOpen]);
+
   const stats = calculateAppraisal(data);
+
+  useEffect(() => {
+    if (!previewOpen) return;
+    const el = modalDocxRef.current;
+    if (!el) return;
+    let cancelled = false;
+    setPreviewDocLoading(true);
+    setPreviewDocError(null);
+    el.innerHTML = "";
+    (async () => {
+      try {
+        const { generateAppraisalDoc } = await import("./lib/docxGenerator");
+        const blob = await generateAppraisalDoc(data);
+        if (cancelled || !modalDocxRef.current) return;
+        await renderAsync(blob, modalDocxRef.current, undefined, DOCX_PREVIEW_OPTS);
+      } catch {
+        if (!cancelled) setPreviewDocError("Could not render the same document as Download. Try again or use Download.");
+      } finally {
+        if (!cancelled) setPreviewDocLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+      if (modalDocxRef.current) modalDocxRef.current.innerHTML = "";
+    };
+  }, [previewOpen, data]);
+
+  const handlePrint = useCallback(async () => {
+    if (previewOpen) {
+      window.print();
+      return;
+    }
+    const el = printSinkRef.current;
+    if (!el) {
+      window.print();
+      return;
+    }
+    try {
+      el.innerHTML = "";
+      const { generateAppraisalDoc } = await import("./lib/docxGenerator");
+      const blob = await generateAppraisalDoc(data);
+      await renderAsync(blob, el, undefined, DOCX_PREVIEW_OPTS);
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+      });
+      window.print();
+    } catch {
+      alert("Could not prepare print from the official DOCX. Use Download or open Preview first.");
+    }
+  }, [data, previewOpen]);
 
   const handleDownload = async () => {
     try {
@@ -128,10 +209,16 @@ export default function App() {
     );
 
   return (
-    <div className="min-h-screen bg-page text-foreground font-sans relative">
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent-warm via-accent to-accent-deep z-[60]" />
+    <div
+      className={cn(
+        "min-h-screen bg-page text-foreground font-sans relative",
+        previewOpen && "print-preview-active",
+      )}
+    >
+      <div className="print:hidden">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent-warm via-accent to-accent-deep z-[60]" />
 
-      <header className="bg-header backdrop-blur-md border-b border-border sticky top-0 z-50">
+        <header className="bg-header backdrop-blur-md border-b border-border sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20 gap-3">
             <div className="flex items-center gap-3 min-w-0 shrink">
@@ -189,6 +276,24 @@ export default function App() {
               </button>
               <button
                 type="button"
+                onClick={() => setPreviewOpen(true)}
+                className="flex items-center gap-2 rounded-full border border-border bg-elevated px-3 sm:px-4 py-2.5 font-bold text-xs uppercase tracking-widest text-muted hover:text-foreground hover:bg-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+                aria-label="Preview printable appraisal"
+              >
+                <Eye className="w-4 h-4 shrink-0" />
+                <span className="hidden sm:inline">Preview</span>
+              </button>
+              <button
+                type="button"
+                onClick={handlePrint}
+                className="flex items-center gap-2 rounded-full border border-border bg-elevated px-3 sm:px-4 py-2.5 font-bold text-xs uppercase tracking-widest text-muted hover:text-foreground hover:bg-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+                aria-label="Print appraisal"
+              >
+                <Printer className="w-4 h-4 shrink-0" />
+                <span className="hidden sm:inline">Print</span>
+              </button>
+              <button
+                type="button"
                 onClick={handleDownload}
                 className="flex items-center gap-2 rounded-full bg-accent px-4 sm:px-5 py-2.5 font-bold text-xs uppercase tracking-widest text-white shadow-md shadow-accent/30 hover:brightness-110 active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-page"
               >
@@ -211,9 +316,9 @@ export default function App() {
             ))}
           </div>
         </div>
-      </header>
+        </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <AnimatePresence mode="wait">
           {activeTab === "info" && (
             <motion.div
@@ -665,7 +770,78 @@ export default function App() {
             </motion.div>
           )}
         </AnimatePresence>
-      </main>
+        </main>
+      </div>
+
+      <div
+        className={cn(
+          "print-only-sink docx-print-sink",
+          previewOpen ? "hidden print:hidden" : "hidden print:block",
+        )}
+        aria-hidden
+      >
+        <div ref={printSinkRef} className="docx-preview-host min-h-[1px] w-full bg-white" />
+      </div>
+
+      {previewOpen ? (
+        <div
+          className="print-preview-modal fixed inset-0 z-[100] flex items-end justify-center sm:items-center p-0 sm:p-6"
+          role="presentation"
+        >
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/60 print:hidden"
+            aria-label="Close preview"
+            onClick={() => setPreviewOpen(false)}
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={previewTitleId}
+            className="relative z-10 flex max-h-[92vh] w-full max-w-[56rem] flex-col rounded-t-2xl border border-border bg-surface shadow-2xl sm:rounded-2xl print:max-h-none print:rounded-none print:border-0 print:bg-white print:shadow-none"
+          >
+            <div className="no-print flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-3 sm:px-5">
+              <div className="min-w-0">
+                <h2 id={previewTitleId} className="text-sm font-bold uppercase tracking-widest text-foreground">
+                  Document preview
+                </h2>
+                <p className="mt-0.5 text-[10px] font-medium uppercase tracking-wider text-muted">
+                  Same DOCX as Download — rendered in the browser
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handlePrint}
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-elevated px-4 py-2 text-xs font-bold uppercase tracking-widest text-foreground hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                >
+                  <Printer className="h-4 w-4" />
+                  Print
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewOpen(false)}
+                  className="inline-flex items-center justify-center rounded-full border border-border p-2 text-muted hover:text-foreground hover:bg-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                  aria-label="Close"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            <div className="print-preview-modal-scroll min-h-0 flex-1 overflow-y-auto bg-white px-3 py-4 sm:px-6 sm:py-6">
+              {previewDocLoading ? (
+                <p className="text-center text-sm text-muted">Generating document preview…</p>
+              ) : null}
+              {previewDocError ? (
+                <p className="text-center text-sm text-red-600" role="alert">
+                  {previewDocError}
+                </p>
+              ) : null}
+              <div ref={modalDocxRef} className="docx-preview-host mx-auto w-full max-w-[56rem]" />
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

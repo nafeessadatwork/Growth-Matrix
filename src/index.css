@@ -145,3 +145,58 @@ html[data-theme="dark"] input[type="date"] {
 html[data-theme="light"] input[type="date"] {
   color-scheme: light;
 }
+
+/* docx-preview rendering tweaks: prevent background bleeding under borders */
+.docx-preview-host table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.docx-preview-host td,
+.docx-preview-host th {
+  background-clip: padding-box;
+}
+
+@media print {
+  @page {
+    margin: 1.5cm;
+  }
+
+  body {
+    background: #fff !important;
+    color: #171717 !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-preview-modal {
+    position: static !important;
+    inset: auto !important;
+    display: block !important;
+    padding: 0 !important;
+    max-height: none !important;
+  }
+
+  .print-preview-modal-scroll {
+    overflow: visible !important;
+    max-height: none !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  .docx-print-sink,
+  .docx-preview-host {
+    color: #171717 !important;
+    background: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .docx-preview-host *,
+  .docx-print-sink * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
