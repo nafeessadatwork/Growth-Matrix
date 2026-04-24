@@ -23,8 +23,8 @@ const DEFAULT_DATA: AppraisalData = {
   employee: {
     name: "",
     position: "",
-    department: "Engineering",
-    appraisalType: "Annual",
+    department: "",
+    appraisalType: "",
     appraisalPeriod: "",
   },
   reviewer: {
