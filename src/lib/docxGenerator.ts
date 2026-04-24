@@ -125,25 +125,13 @@ export async function generateAppraisalDoc(data: AppraisalData) {
                     borders: B.none,
                     shading: { fill: COLORS.NAVY, type: ShadingType.CLEAR },
                     children: [
-                      // Title line — "STAFF PERFORMANCE FEEDBACK FORM" (sz=44, bold, white)
+                      // Title line — "STAFF GROWTH MATRIX FORM" (sz=44, bold, white)
                       new Paragraph({
                         alignment: AlignmentType.RIGHT,
                         spacing:   { ...SPACING.navyTitleFirst },
                         children: [
                           new TextRun({
-                            text:  "STAFF PERFORMANCE ",
-                            bold:  true,
-                            size:  TYPO.headerTitle,
-                            color: COLORS.WHITE,
-                          }),
-                          new TextRun({
-                            text:  "FEEDBACK",
-                            bold:  true,
-                            size:  TYPO.headerTitle,
-                            color: COLORS.WHITE,
-                          }),
-                          new TextRun({
-                            text:  " FORM",
+                            text:  "STAFF GROWTH MATRIX FORM",
                             bold:  true,
                             size:  TYPO.headerTitle,
                             color: COLORS.WHITE,

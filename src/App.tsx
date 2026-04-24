@@ -394,6 +394,16 @@ export default function App() {
                     />
                   </div>
                 </div>
+                <div className="mt-8 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("factors")}
+                    className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2 text-xs font-bold uppercase tracking-widest text-white shadow-md shadow-accent/30 hover:brightness-110 active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+                  >
+                    Done
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
               </Section>
             </motion.div>
           )}
@@ -430,6 +440,13 @@ export default function App() {
                   if (idx >= total - 1) return;
                   setFactorSlideDir(1);
                   setFactorSlideIndex(idx + 1);
+                };
+                const handleDone = () => {
+                  if (idx < total - 1) {
+                    goNext();
+                  } else {
+                    setActiveTab("goals");
+                  }
                 };
                 return (
                   <>
@@ -501,6 +518,16 @@ export default function App() {
                                   setData({ ...data, factors: newFactors });
                                 }}
                               />
+                              <div className="mt-3 flex justify-end">
+                                <button
+                                  type="button"
+                                  onClick={handleDone}
+                                  className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2 text-xs font-bold uppercase tracking-widest text-white shadow-md shadow-accent/30 hover:brightness-110 active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+                                >
+                                  Done
+                                  <ChevronRight className="h-4 w-4" />
+                                </button>
+                              </div>
                             </div>
 
                             <div className="lg:w-72 space-y-6 flex flex-col justify-center bg-score-panel p-6 rounded-2xl border border-border">
@@ -562,8 +589,9 @@ export default function App() {
               </div>
 
               {data.goals.map((goal, idx) => (
-                <Section key={goal.id} className="border-l-4 border-border hover:border-accent transition-all">
-                  <div className="space-y-6">
+                <div key={goal.id} id={`goal-${goal.id}`}>
+                  <Section className="border-l-4 border-border hover:border-accent transition-all">
+                    <div className="space-y-6">
                     <div className="flex items-center gap-3 flex-wrap">
                       <span className="text-[10px] font-black bg-badge text-badge-foreground px-2 py-1 rounded">GOAL {goal.id}</span>
                       <div className="flex-1 min-w-[12rem]">
@@ -609,8 +637,26 @@ export default function App() {
                         />
                       </div>
                     </div>
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = data.goals[idx + 1];
+                          if (next) {
+                            document.getElementById(`goal-${next.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                            return;
+                          }
+                          setActiveTab("summary");
+                        }}
+                        className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2 text-xs font-bold uppercase tracking-widest text-white shadow-md shadow-accent/30 hover:brightness-110 active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+                      >
+                        Done
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
-                </Section>
+                  </Section>
+                </div>
               ))}
             </motion.div>
           )}
