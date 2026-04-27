@@ -125,13 +125,13 @@ export async function generateAppraisalDoc(data: AppraisalData) {
                     borders: B.none,
                     shading: { fill: COLORS.NAVY, type: ShadingType.CLEAR },
                     children: [
-                      // Title line — "STAFF GROWTH MATRIX FORM" (sz=44, bold, white)
+                      // Title line — "MINDX Growth Matrix Form" (sz=44, bold, white)
                       new Paragraph({
                         alignment: AlignmentType.RIGHT,
                         spacing:   { ...SPACING.navyTitleFirst },
                         children: [
                           new TextRun({
-                            text:  "STAFF GROWTH MATRIX FORM",
+                            text:  "MINDX Growth Matrix Form",
                             bold:  true,
                             size:  TYPO.headerTitle,
                             color: COLORS.WHITE,
@@ -171,8 +171,9 @@ export async function generateAppraisalDoc(data: AppraisalData) {
               createInfoRow("Employee Name",     data.employee.name,          "Reviewer Name",     data.reviewer.name),
               createInfoRow("Employee Position", data.employee.position,      "Reviewer Position", data.reviewer.position),
               createInfoRow("Department",        data.employee.department,    "Department",        data.reviewer.department),
-              createInfoRow("Type of Appraisal", data.employee.appraisalType, "Projects Managed",  data.reviewer.projectsManaged),
-              createInfoRow("Appraisal Period",  data.employee.appraisalPeriod, "Appraisal Due",   data.reviewer.appraisalDue),
+              createInfoRow("Projects Managed",  data.employee.projectsManaged, "Appraisal Due",   data.reviewer.appraisalDue),
+              createInfoRow("Type of Appraisal", data.employee.appraisalType,   "",               ""),
+              createInfoRow("Appraisal Period",  data.employee.appraisalPeriod, "",               ""),
             ],
           }),
 

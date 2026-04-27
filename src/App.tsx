@@ -24,6 +24,7 @@ const DEFAULT_DATA: AppraisalData = {
     name: "",
     position: "",
     department: "",
+    projectsManaged: "",
     appraisalType: "",
     appraisalPeriod: "",
   },
@@ -31,7 +32,6 @@ const DEFAULT_DATA: AppraisalData = {
     name: "",
     position: "",
     department: "",
-    projectsManaged: "",
     appraisalDue: "",
   },
   factors: INITIAL_FACTORS,
@@ -62,7 +62,28 @@ export default function App() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved) as AppraisalData & {
+          reviewer?: { projectsManaged?: string };
+          employee?: { projectsManaged?: string };
+        };
+        // Back-compat: older drafts stored projectsManaged under reviewer.
+        if (!parsed.employee?.projectsManaged && parsed.reviewer?.projectsManaged) {
+          parsed.employee = { ...parsed.employee, projectsManaged: parsed.reviewer.projectsManaged };
+        }
+        if (parsed.reviewer && "projectsManaged" in parsed.reviewer) {
+          delete (parsed.reviewer as { projectsManaged?: unknown }).projectsManaged;
+        }
+        // Back-compat: older drafts defaulted reviewer.department to "Management".
+        // Clear it only when the reviewer section is otherwise blank (treat as an old default).
+        if (
+          parsed.reviewer?.department === "Management" &&
+          !parsed.reviewer?.name &&
+          !parsed.reviewer?.position &&
+          !parsed.reviewer?.appraisalDue
+        ) {
+          parsed.reviewer = { ...parsed.reviewer, department: "" };
+        }
+        return parsed as AppraisalData;
       } catch (e) {
         return DEFAULT_DATA;
       }
@@ -220,22 +241,24 @@ export default function App() {
 
         <header className="bg-header backdrop-blur-md border-b border-border sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20 gap-3">
-            <div className="flex items-center gap-3 min-w-0 shrink">
-              <div className="h-10 w-10 shrink-0 flex items-center justify-center rounded-lg bg-gradient-to-br from-accent-warm to-accent text-white font-bold text-xl shadow-lg shadow-accent/25">
-                MX
+          <div className="flex justify-between items-center min-h-20 py-3 gap-3">
+            <div className="flex items-center gap-2 min-w-0 shrink">
+              <div className="h-14 w-14 shrink-0 overflow-hidden flex items-center justify-center">
+                <img
+                  src={new URL("./assets/mindx-logo-white.png", import.meta.url).href}
+                  alt="MindX"
+                  className="h-14 w-14 object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)]"
+                  loading="eager"
+                />
               </div>
-              <div className="min-w-0">
-                <h1 className="text-lg sm:text-xl font-light tracking-tight text-foreground leading-none truncate">
-                  MindX <span className="font-bold text-accent">Growth Matrix</span>
+              <div className="min-w-0 flex flex-col justify-center">
+                <h1 className="text-sm sm:text-xl font-light tracking-tight text-foreground leading-none whitespace-nowrap truncate">
+                  MINDX <span className="font-bold text-accent">Growth Matrix</span>
                 </h1>
-                <p className="text-[10px] font-bold text-muted uppercase tracking-[0.2em] mt-1.5">
-                  Performance Appraisal v2.4
-                </p>
               </div>
             </div>
 
-            <div className="hidden md:flex bg-tab-pill p-1 rounded-full border border-border shrink-0">
+            <div className="hidden lg:flex bg-tab-pill p-1 rounded-full border border-border shrink-0">
               {TABS.map((tab) => (
                 <button
                   key={tab}
@@ -303,7 +326,7 @@ export default function App() {
             </div>
           </div>
 
-          <div className="md:hidden border-t border-border py-2 -mx-4 px-4 flex gap-2 overflow-x-auto">
+          <div className="lg:hidden border-t border-border py-2 -mx-4 px-4 flex gap-2 overflow-x-auto">
             {TABS.map((tab) => (
               <button
                 key={tab}
@@ -350,6 +373,12 @@ export default function App() {
                       onChange={(val) => setData({ ...data, employee: { ...data.employee, department: val } })}
                       placeholder="e.g. Engineering"
                     />
+                    <InputField
+                      label="Project(s) Managed"
+                      value={data.employee.projectsManaged}
+                      onChange={(val) => setData({ ...data, employee: { ...data.employee, projectsManaged: val } })}
+                      placeholder="e.g. Project Alpha, Beta"
+                    />
                     <div className="grid grid-cols-2 gap-4">
                       <InputField
                         label="Appraisal Type"
@@ -381,10 +410,10 @@ export default function App() {
                       placeholder="e.g. Area Manager"
                     />
                     <InputField
-                      label="Project(s) Managed"
-                      value={data.reviewer.projectsManaged}
-                      onChange={(val) => setData({ ...data, reviewer: { ...data.reviewer, projectsManaged: val } })}
-                      placeholder="e.g. Project Alpha, Beta"
+                      label="Department"
+                      value={data.reviewer.department}
+                      onChange={(val) => setData({ ...data, reviewer: { ...data.reviewer, department: val } })}
+                      placeholder="e.g. Operations"
                     />
                     <InputField
                       label="Appraisal Due Date"

@@ -7,6 +7,7 @@ export interface EmployeeInfo {
     name: string;
     position: string;
     department: string;
+    projectsManaged: string;
     appraisalType: string;
     appraisalPeriod: string;
   }
@@ -15,7 +16,6 @@ export interface EmployeeInfo {
     name: string;
     position: string;
     department: string;
-    projectsManaged: string;
     appraisalDue: string;
   }
   
