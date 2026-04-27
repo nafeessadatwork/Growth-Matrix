@@ -171,25 +171,25 @@ export async function generateAppraisalDoc(data: AppraisalData) {
               createInfoRow("Employee Name",     data.employee.name,          "Reviewer Name",     data.reviewer.name),
               createInfoRow("Employee Position", data.employee.position,      "Reviewer Position", data.reviewer.position),
               createInfoRow("Department",        data.employee.department,    "Department",        data.reviewer.department),
-              createInfoRow("Projects Managed",  data.employee.projectsManaged, "Appraisal Due",   data.reviewer.appraisalDue),
-              createInfoRow("Type of Appraisal", data.employee.appraisalType,   "",               ""),
-              createInfoRow("Appraisal Period",  data.employee.appraisalPeriod, "",               ""),
+              createInfoRow("Projects Managed",  data.employee.projectsManaged, "Evaluation Due",   data.reviewer.appraisalDue),
+              createInfoRow("Type of Evaluation", data.employee.appraisalType,   "",               ""),
+              createInfoRow("Evaluation Period",  data.employee.appraisalPeriod, "",               ""),
             ],
           }),
 
           new Paragraph({ text: "", spacing: { ...SPACING.sectionBreak } }),
 
-          // ── PERFORMANCE APPRAISAL SECTION ─────────────────────────────────
+          // ── GROWTH EVALUATION SECTION ─────────────────────────────────────
           new Table({
             width:  { size: CONTENT_WIDTH_DXA, type: WidthType.DXA },
             layout: TableLayoutType.FIXED,
             borders: B.grid,
             rows: [
-              createBannerRow("PERFORMANCE APPRAISAL", COLS.performance.length, COLORS.PRIMARY),
+              createBannerRow("GROWTH EVALUATION", COLS.performance.length, COLORS.PRIMARY),
               // Column header row
               new TableRow({
                 children: [
-                  createHeaderCell("Performance Factor",    COLS.performance[0], COLORS.PRIMARY, { noTopBorder: true }),
+                  createHeaderCell("Growth Factor",    COLS.performance[0], COLORS.PRIMARY, { noTopBorder: true }),
                   createHeaderCell("Employee Score",        COLS.performance[1], COLORS.PRIMARY, { noTopBorder: true }),
                   createHeaderCell("Weightage",             COLS.performance[2], COLORS.PRIMARY, { noTopBorder: true }),
                   createHeaderCell("Reviewer Score",        COLS.performance[3], COLORS.PRIMARY, { noTopBorder: true }),
@@ -412,7 +412,7 @@ export async function generateAppraisalDoc(data: AppraisalData) {
 
           new Paragraph({ text: "", spacing: { ...SPACING.sectionBreak } }),
 
-          // ── PERFORMANCE SCORE SUMMARY (narrow, left-indented) ─────────────
+          // ── GROWTH SCORE SUMMARY (narrow, left-indented) ─────────────────
           new Table({
             width:  { size: TABLE.summaryNarrow.size, type: WidthType.DXA },
             alignment: AlignmentType.CENTER,
@@ -428,7 +428,7 @@ export async function generateAppraisalDoc(data: AppraisalData) {
               }),
               createSummaryRow("Employee Score", formatScore(stats.employeeFactorScore), "0.3", COLS.summaryNarrow),
               createSummaryRow("Reviewer Score", formatScore(stats.reviewerFactorScore), "0.7", COLS.summaryNarrow),
-              // Performance Score (highlighted row)
+              // Growth Score (highlighted row)
               new TableRow({
                 children: [
                   new TableCell({
@@ -439,7 +439,7 @@ export async function generateAppraisalDoc(data: AppraisalData) {
                       new Paragraph({
                         spacing: { ...bodySpacing },
                         children: [
-                          new TextRun({ text: "Performance Score", bold: true, size: TYPO.body, color: COLORS.NAVY }),
+                          new TextRun({ text: "Growth Score", bold: true, size: TYPO.body, color: COLORS.NAVY }),
                         ],
                       }),
                     ],
@@ -618,7 +618,7 @@ export async function generateAppraisalDoc(data: AppraisalData) {
                   createHeaderCell("Weightage",             COLS.finalCalc[2], COLORS.NAVY_ALT),
                 ],
               }),
-              createSummaryRow("Performance Score",          formatScore(stats.performanceScore),      "0.8", COLS.finalCalc),
+              createSummaryRow("Growth Score",          formatScore(stats.performanceScore),      "0.8", COLS.finalCalc),
               createSummaryRow("Goal(s) Achievement Score",  formatScore(stats.goalAchievementScore),  "0.2", COLS.finalCalc),
               // FINAL SCORE row: NAVY label + PRIMARY value cells
               new TableRow({
@@ -656,7 +656,7 @@ export async function generateAppraisalDoc(data: AppraisalData) {
                   }),
                 ],
               }),
-              // Performance Category row
+              // Growth Category row
               new TableRow({
                 children: [
                   new TableCell({
@@ -666,7 +666,7 @@ export async function generateAppraisalDoc(data: AppraisalData) {
                     children: [
                       new Paragraph({
                         spacing: { ...bodySpacing },
-                        children: [new TextRun({ text: "Performance Category", bold: true, size: TYPO.body, color: COLORS.TEXT_MAIN })],
+                        children: [new TextRun({ text: "Growth Category", bold: true, size: TYPO.body, color: COLORS.TEXT_MAIN })],
                       }),
                     ],
                     margins: CELL.summaryLabel,

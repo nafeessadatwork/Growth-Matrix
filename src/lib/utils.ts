@@ -12,7 +12,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function calculateAppraisal(data: AppraisalData) {
-  // 1. Performance Appraisal Scores
+  // 1. Growth Evaluation scores (factors)
   const totalEmployeeFactorScore = data.factors.reduce(
     (acc, f) => acc + (f.employeeScore * f.weightage),
     0
@@ -22,7 +22,7 @@ export function calculateAppraisal(data: AppraisalData) {
     0
   );
 
-  // 2. Weighted Performance Score (30% Employee, 70% Reviewer)
+  // 2. Weighted growth score (30% Employee, 70% Reviewer)
   const performanceScore = (totalEmployeeFactorScore * 0.3) + (totalReviewerFactorScore * 0.7);
 
   // 3. Goal Achievement Score
@@ -31,7 +31,7 @@ export function calculateAppraisal(data: AppraisalData) {
     0
   );
 
-  // 4. Final Score (80% Performance, 20% Goals)
+  // 4. Final Score (80% growth factors, 20% goals)
   const finalScore = (performanceScore * 0.8) + (goalAchievementScore * 0.2);
 
   return {

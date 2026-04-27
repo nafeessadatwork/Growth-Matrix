@@ -16,11 +16,11 @@
  *   headerTitle  → w:sz=44  (title line in navy cell)
  *   headerAddress→ w:sz=13  (address/contact combined line, subdued)
  *   tagline      → no explicit sz in XML → default 12 pt = 24 half-pts
- *   redBand      → w:sz=24  (all section-banner rows: PERFORMANCE, GOALS, COMMENTS, SIGNATURES)
+ *   redBand      → w:sz=24  (all section-banner rows: GROWTH EVALUATION, GOALS, COMMENTS, SIGNATURES)
  *   tableHeader  → no explicit sz on column-header rows → default 12 pt = 24 half-pts
  *   body         → w:sz=17  (info-grid labels & values, summary rows, goal/sig cells)
  *   bodySmall    → w:sz=15  (factor description paragraphs, footer notes)
- *   factorTitle  → w:sz=17  (performance factor numbered title line)
+ *   factorTitle  → w:sz=17  (growth factor numbered title line)
  *   factorDesc   → w:sz=15  (factor description line)
  *   footerNote   → w:sz=15  (goal footnote lines)
  */

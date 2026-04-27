@@ -200,7 +200,7 @@ export default function App() {
     try {
       const { generateAppraisalDoc } = await import("./lib/docxGenerator");
       const blob = await generateAppraisalDoc(data);
-      saveAs(blob, `Appraisal_${data.employee.name || "Form"}.docx`);
+      saveAs(blob, `Evaluation_${data.employee.name || "Form"}.docx`);
     } catch (error) {
       console.error("Failed to generate DOCX", error);
       alert("Failed to generate document. Please check console for details.");
@@ -301,7 +301,7 @@ export default function App() {
                 type="button"
                 onClick={() => setPreviewOpen(true)}
                 className="flex items-center gap-2 rounded-full border border-border bg-elevated px-3 sm:px-4 py-2.5 font-bold text-xs uppercase tracking-widest text-muted hover:text-foreground hover:bg-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-page"
-                aria-label="Preview printable appraisal"
+                aria-label="Preview printable evaluation"
               >
                 <Eye className="w-4 h-4 shrink-0" />
                 <span className="hidden sm:inline">Preview</span>
@@ -310,7 +310,7 @@ export default function App() {
                 type="button"
                 onClick={handlePrint}
                 className="flex items-center gap-2 rounded-full border border-border bg-elevated px-3 sm:px-4 py-2.5 font-bold text-xs uppercase tracking-widest text-muted hover:text-foreground hover:bg-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-page"
-                aria-label="Print appraisal"
+                aria-label="Print evaluation"
               >
                 <Printer className="w-4 h-4 shrink-0" />
                 <span className="hidden sm:inline">Print</span>
@@ -381,13 +381,13 @@ export default function App() {
                     />
                     <div className="grid grid-cols-2 gap-4">
                       <InputField
-                        label="Appraisal Type"
+                        label="Evaluation Type"
                         value={data.employee.appraisalType}
                         onChange={(val) => setData({ ...data, employee: { ...data.employee, appraisalType: val } })}
                         placeholder="e.g. Annual"
                       />
                       <InputField
-                        label="Period"
+                        label="Evaluation Period"
                         value={data.employee.appraisalPeriod}
                         onChange={(val) => setData({ ...data, employee: { ...data.employee, appraisalPeriod: val } })}
                         placeholder="e.g. 2023-2024"
@@ -416,7 +416,7 @@ export default function App() {
                       placeholder="e.g. Operations"
                     />
                     <InputField
-                      label="Appraisal Due Date"
+                      label="Evaluation Due Date"
                       type="date"
                       value={data.reviewer.appraisalDue}
                       onChange={(val) => setData({ ...data, reviewer: { ...data.reviewer, appraisalDue: val } })}
@@ -447,7 +447,7 @@ export default function App() {
             >
               <div className="flex justify-between items-end mb-4 px-2 gap-4">
                 <div>
-                  <h2 className="text-2xl font-light text-foreground tracking-tight">Performance Appraisal</h2>
+                  <h2 className="text-2xl font-light text-foreground tracking-tight">Growth Evaluation</h2>
                   <p className="text-muted text-sm mt-1 uppercase tracking-widest font-medium">Competency Evaluation</p>
                 </div>
                 <div className="text-right shrink-0">
@@ -481,7 +481,7 @@ export default function App() {
                   <>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-2 mb-4">
                       <p className="text-sm font-semibold text-muted">
-                        Factor {factor.id} · {idx + 1} / {total}
+                        Growth Factor {factor.id} · {idx + 1} / {total}
                       </p>
                       <div className="flex items-center gap-2">
                         <button
@@ -527,7 +527,7 @@ export default function App() {
                             <div className="flex-1">
                               <div className="flex items-center gap-3 mb-4 flex-wrap">
                                 <span className="text-[10px] font-black bg-badge text-badge-foreground px-2 py-1 rounded">
-                                  FACTOR {factor.id}
+                                  GROWTH FACTOR {factor.id}
                                 </span>
                                 <h3 className="text-lg font-bold text-foreground">{factor.title}</h3>
                                 <span className="text-xs font-bold text-muted ml-auto tracking-widest">
@@ -731,15 +731,15 @@ export default function App() {
 
                 <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
                   <div className="bg-black/25 backdrop-blur-md p-4 rounded-2xl border border-white/15">
-                    <span className="text-[8px] font-black uppercase text-white/60 tracking-[0.2em]">Perf. (Emp)</span>
+                    <span className="text-[8px] font-black uppercase text-white/60 tracking-[0.2em]">Growth (Emp)</span>
                     <div className="text-xl font-bold text-white">{formatScore(stats.employeeFactorScore)}</div>
                   </div>
                   <div className="bg-black/25 backdrop-blur-md p-4 rounded-2xl border border-white/15">
-                    <span className="text-[8px] font-black uppercase text-white/60 tracking-[0.2em]">Perf. (Rev)</span>
+                    <span className="text-[8px] font-black uppercase text-white/60 tracking-[0.2em]">Growth (Rev)</span>
                     <div className="text-xl font-bold text-white">{formatScore(stats.reviewerFactorScore)}</div>
                   </div>
                   <div className="bg-black/25 backdrop-blur-md p-4 rounded-2xl border border-white/15">
-                    <span className="text-[8px] font-black uppercase text-white/60 tracking-[0.2em]">Perf. Score (80%)</span>
+                    <span className="text-[8px] font-black uppercase text-white/60 tracking-[0.2em]">Growth Score (80%)</span>
                     <div className="text-xl font-bold text-white">{formatScore(stats.performanceScore)}</div>
                   </div>
                   <div className="bg-black/25 backdrop-blur-md p-4 rounded-2xl border border-white/15">
@@ -749,7 +749,7 @@ export default function App() {
                 </div>
               </div>
 
-              <Section title="Final Remarks & Assessment">
+              <Section title="Final Remarks & Evaluation">
                 <div className="space-y-8">
                   <CommentField
                     label="Employee Reflection"
